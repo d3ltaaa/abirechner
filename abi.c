@@ -143,9 +143,10 @@ int take_input(fach* subjects){
 
 
 int update_included_arrays(fach* subjects){
+	
 
 	// go through every subject
-	for (int i = 0; i < num_sub; i++){
+ 	for (int i = 0; i < num_sub; i++){
 		
 		// go through every quater
 		for (int j = 0; j < 4; j++){
@@ -159,6 +160,7 @@ int update_included_arrays(fach* subjects){
 			else{
 				
 				subjects[i].included[j] = 0;
+
 			
 			}
 		}
@@ -171,6 +173,9 @@ float calculate_block1(fach* subjects){
 
 	// points
 	float points = 0.0;
+
+	// variable to keep track of counted courses
+	float counted = 0.0;
 
 	// go through every subject
 	for (int i = 0; i < num_sub; i++){
@@ -186,18 +191,43 @@ float calculate_block1(fach* subjects){
 				if (subjects[i].subject_type == 'L'){
 					
 					points += 2 * subjects[i].grades[j];
+					counted += 2;
 
 				}
 				// else count the grade once
 				else{
 					points += subjects[i].grades[j];
+					counted++;
 				}
 			}
 		}
 	}
+
+	// divide by the amount of courses
+	points = points / counted;
+	
+	// print included courses
+	printf("included: %f\n", counted);
+	// multiply by 40
+	points = points * 40;
 	return points;
 }
 
+float calculate_block2(fach* subjects){
+
+	// points
+	float points = 0.0;
+
+	// for each L, M and S
+	for (int i = 0; i < num_sub; i++){
+
+		if (subjects[i].subject_type == 'L' || subjects[i].subject_type == 'S' || subjects[i].subject_type == 'M'){
+
+			points += 5 * subjects[i].abi;
+		}
+	}
+	return points;
+}
 
 int main(){
 	
@@ -228,25 +258,14 @@ int main(){
 	// print document
 	print_buffer(buffer);
 	
-	// temp: print all abbreviations
-	for (int i = 0; i < num_sub; i++){
-		printf("%s ", subjects[i].abbr);
-	}
-	printf("\n");
-		
-	// temp: check for same abbreviations
+	// take input and update included arrays
 	take_input(subjects);
 	update_included_arrays(subjects);
 	
-	// temp: check all abis
-	for (int i = 0; i < num_sub; i++){
-		printf("Note[%s]: %f ", subjects[i].abbr, subjects[i].abi);
-		printf("Type: %c ", subjects[i].subject_type);
-		printf("[%f, %f, %f, %f]  ", subjects[i].grades[0], subjects[i].grades[1], subjects[i].grades[2], subjects[i].grades[3]);
-		printf("[%d, %d, %d, %d]\n", subjects[i].included[0], subjects[i].included[1],subjects[i].included[2],subjects[i].included[3]);
-	}
+	// print all sums
 	printf("sum of block1: %f\n", calculate_block1(subjects));
-	
+	printf("sum of block2: %f\n", calculate_block2(subjects));
+	printf("sum: %f\n", calculate_block1(subjects) + calculate_block2(subjects));
 	// free buffer
 	free(buffer);
 	
