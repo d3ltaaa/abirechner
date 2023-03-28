@@ -17,6 +17,7 @@ typedef struct fach
 // header files
 int print_buffer(char* buffer);
 int combine_abbr(fach* subjects);
+int print_info(fach* subjects);
 int update_included_arrays(fach* subjects);
 float calculate_block1(fach* subjects);
 
@@ -43,6 +44,34 @@ int combine_abbr(fach* subjects){
 	return 0;
 
 }
+
+int print_info(fach* subjects){
+
+        printf("abbr - st - grades       - ab -  included\n");
+
+        for (int i = 0; i < num_sub; i++){
+
+                printf("'%s' - %c -", subjects[i].abbr, subjects[i].subject_type);
+
+                for (int j = 0; j < 4; j++){
+
+                        printf(" %f", subjects[i].grades[j]);
+
+                }
+
+                printf(" - %f -", subjects[i].abi);
+
+                for (int j = 0; j < 4; j++){
+
+                        printf(" %d", subjects[i].included[j]);
+
+                }
+
+                printf("\n");
+        }
+        return 0;
+}
+
 
 int print_buffer(char* buffer){
 
@@ -257,6 +286,8 @@ int main(){
 
 	// print document
 	print_buffer(buffer);
+	
+	print_info(subjects);
 	
 	// take input and update included arrays
 	take_input(subjects);
