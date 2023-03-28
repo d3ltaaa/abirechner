@@ -20,7 +20,6 @@ int print_info(fach* subjects);
 int combine_abbr(fach* subjects);
 int update_included_arrays(fach* subjects);
 float calculate_block1(fach* subjects);
-int return_rightness(fach* subjects);
 void print_included(int* arr);
 void print_grades(float* arr);
 
@@ -481,6 +480,91 @@ void science_subjects(fach* subjects){
 	}
 }
 
+void religion_subjects(fach* subjects){
+
+	// IMPORTANT
+	char* religion_subjects[] = {"Pl\0", "Kt\0", "Ef\0"};
+        int l_r_sub = 3;
+
+	// variable to keep track if one subject fulfills requirements	
+	int ok_religion = 0;	
+	// there needs to be at least one science subject that is included for 4 quaters
+	// that means either one of them is in the abi_subjects
+	// or one of them is included 4 times
+	for (int cycle = 0; cycle < l_r_sub; cycle++){
+
+		char temp_subject[3];
+	        temp_subject[0] = religion_subjects[cycle][0];
+		temp_subject[1] = religion_subjects[cycle][1];
+		temp_subject[2] = '\0';
+
+		// a variable to keep track of the included quaters for every subject
+		int quater_c = 0;
+
+		// check if it is an abi subject because it would be included 4 times automatically
+		int c = 0;
+		for (int i = 0; i < 4; i++){
+		
+			if (strcmp(temp_subject, abi_subjects[i]) == 0) c++, ok_religion = 1;
+		}	
+
+		// in case it is not
+		if (c == 0){
+
+			// go through every subject
+			for (int i = 0; i < num_sub; i++){
+
+				// until temp_subject is found
+				if (strcmp(temp_subject, subjects[i].abbr) == 0){
+
+					// go through every quater
+					for (int j = 0; j < 4; j++){
+
+						// count the included with quater_c
+						if (subjects[i].included[j] == 1){
+
+							quater_c++;
+						}
+					}
+				}
+			}
+			// break if quater_c is 2 because it is a minimum of 1 subject that needs to be 2 times included
+			if (quater_c == 2) ok_religion = 1; break;
+		}	
+	}
+
+	if (ok_religion == 0){
+
+		printf("One of these subjects ");
+
+		for (int i = 0; i < l_r_sub; i++){
+
+			printf("%s ", religion_subjects[i]);
+
+		}
+
+		printf("needs to be included 4 times.\n");
+
+	}
+}
+
+void amount_included(fach* subjects){
+
+	int include_counter = 0;
+
+	// go through every subject
+	for (int i = 0; i < num_sub; i++){
+
+		// go through every quater
+		for (int j = 0; j < 4; j++){
+			
+			// add included value to include_counter
+			if (subjects[i].included[j] == 1) include_counter++;
+		}
+	}
+	printf("Included: %d \n", include_counter);
+}
+
 
 
 int return_r(fach* subjects){
@@ -522,273 +606,16 @@ int return_r(fach* subjects){
 	science_subjects(subjects);
 
 	// if not in the abi-subjects, is one religion study included 2 times (out of Pl, Kt, Ef)
-	
+	religion_subjects(subjects);
+
 	// is the SCHWERPUNKTFACH included 2 in the second year
 	
 	// is every included more or equal to 35 (and if P is included 36)
+	amount_included(subjects);
 
 
 
 
-
-}
-int return_rightness(fach* subjects){
-
-	char abi_subjects[4][3];
-
-	int abi_subject_counter = 0;
-
-	// every subject of type L M and S needs to be included for every quate
-	for (int i = 0; i < num_sub; i++){
-
-		char temp = subjects[i].subject_type;
-		
-		// if the subject type is L M or S
-		if (temp == 'L' || temp == 'S' ||temp == 'M'){
-			
-			// update abi_subjects with the help of abi_subject_counter
-			abi_subjects[abi_subject_counter][0] = subjects[i].abbr[0];
-			abi_subjects[abi_subject_counter][1] = subjects[i].abbr[1]; 
-			abi_subjects[abi_subject_counter][2] = '\0';
-			
-			abi_subject_counter++;
-
-			// go through every quater
-			for (int j = 0; j < 4; j++){
-
-				// if there is a quater without a 1 than it prints an erro
-				if (subjects[i].included[j] == 0){
-
-					printf("Subjects %s needs to be included in quater %d.\n", subjects[i].abbr, j + 1);
-				
-				}
-			}
-		} 
-	} 
-	// IMPORTANT 		    
-	char* must_every_subjects[] = { "De\0", "En\0", "Ma\0" }; 
-	int l_m_e_sub = 3; 
-
-	// check if the subjects that have to be included in every quater are included
-	for (int cycle = 0; cycle < l_m_e_sub; cycle++){
-	       	
-		
-		char temp_subject[3];
-	        temp_subject[0] = must_every_subjects[cycle][0];
-		temp_subject[1] = must_every_subjects[cycle][1];
-		temp_subject[2] = '\0';
-
-		// check if it is an abi subject
-		int c = 0;		
-		for (int i = 0; i < 4; i++){
-		
-			if (strcmp(temp_subject, abi_subjects[i]) == 0) c++;
-		}
-		// in case it is not
-		if (c == 0){	
-		
-			// go through every subject
-			for (int i = 0; i < num_sub; i++){
-				
-				// until temp_subject is found 
-				if (strcmp(temp_subject, subjects[i].abbr) == 0){
-					
-					// go through every quater
-					for (int j = 0; j < 4; j++){
-					
-						// if included of this quater is 0 return an error
-						if (subjects[i].included[j] == 0){
-
-							printf("Subjects %s needs to be included in quater %d.\n", subjects[i].abbr, j + 1);
-						}
-					}
-				}
-			}
-		}		
-	}
-	// IMPORTANT
-	char* must_half_subjects[] = {"Ku\0", "Ge\0", "Sw\0", "Pl\0"};
-	int l_m_h_sub = 4;
-	// check if the subjects that have to be included in at least two quaters are included
-	for (int cycle = 0; cycle < l_m_h_sub; cycle++){
-
-		char temp_subject[3];
-	        temp_subject[0] = must_half_subjects[cycle][0];
-		temp_subject[1] = must_half_subjects[cycle][1];
-		temp_subject[2] = '\0';
-
-		// a variable to keep track of the included quaters for every subject
-		int quater_c = 0;
-
-		
-		// check if it is an abi subject	
-		int c = 0;
-		for (int i = 0; i < 4; i++){
-		
-			if (strcmp(temp_subject, abi_subjects[i]) == 0) c++;
-		}	
-
-		// in case it is not
-		if (c == 0){
-
-			// go through every subject
-			for (int i = 0; i < num_sub; i++){
-
-				// until temp_subject is found
-				if (strcmp(temp_subject, subjects[i].abbr) == 0){
-
-										
-					// go through every quater
-					for (int j = 0; j < 4; j++){
-
-						// count the included with quater_c
-						if (subjects[i].included[j] == 1){
-
-							quater_c++;
-						}
-					}
-				}
-			}
-			// if there is less than two included
-			if (quater_c < 2){
-			
-				printf("Subjects %s needs to be included more often (included = %d; supposed >= 2)\n", temp_subject, quater_c);
-			}
-		}
-		
-	}
-
-	// IMPORTANT
-	char* social_subjects[] = {"Pl\0", "Ge\0", "Sw\0"};
-        int l_s_sub = 3;
-
-	// variable to keep track if one subject fulfills requirements	
-	int ok_social = 0;	
-	// there needs to be at least one social subject that is included for 4 quaters
-	// that means either one of them is in the abi_subjects
-	// or one of them is included 4 times
-	for (int cycle = 0; cycle < l_s_sub; cycle++){
-
-		char temp_subject[3];
-	        temp_subject[0] = social_subjects[cycle][0];
-		temp_subject[1] = social_subjects[cycle][1];
-		temp_subject[2] = '\0';
-
-		// a variable to keep track of the included quaters for every subject
-		int quater_c = 0;
-
-		// check if it is an abi subject because it would be included 4 times automatically
-		int c = 0;
-		for (int i = 0; i < 4; i++){
-		
-			if (strcmp(temp_subject, abi_subjects[i]) == 0) c++, ok_social = 1;
-		}	
-
-		// in case it is not
-		if (c == 0){
-
-			// go through every subject
-			for (int i = 0; i < num_sub; i++){
-
-				// until temp_subject is found
-				if (strcmp(temp_subject, subjects[i].abbr) == 0){
-
-					// go through every quater
-					for (int j = 0; j < 4; j++){
-
-						// count the included with quater_c
-						if (subjects[i].included[j] == 1){
-
-							quater_c++;
-						}
-					}
-				}
-			}
-			// break if quater_c is 4 because it is a minimum of 1 subject that needs to be 4 times included
-			if (quater_c == 4) ok_social = 1; break;
-		}	
-	}
-
-	if (ok_social == 0){
-
-		printf("One of these subjects ");
-
-		for (int i = 0; i < l_s_sub; i++){
-
-			printf("%s ", social_subjects[i]);
-
-		}
-
-		printf("needs to be included 4 times.\n");
-
-	}
-
-	// IMPORTANT
-	char* science_subjects[] = {"Ph\0", "Ch\0", "Bi\0"};
-        int l_c_sub = 3;
-
-	// variable to keep track if one subject fulfills requirements	
-	int ok_science = 0;	
-	// there needs to be at least one science subject that is included for 4 quaters
-	// that means either one of them is in the abi_subjects
-	// or one of them is included 4 times
-	for (int cycle = 0; cycle < l_c_sub; cycle++){
-
-		char temp_subject[3];
-	        temp_subject[0] = science_subjects[cycle][0];
-		temp_subject[1] = science_subjects[cycle][1];
-		temp_subject[2] = '\0';
-
-		// a variable to keep track of the included quaters for every subject
-		int quater_c = 0;
-
-		// check if it is an abi subject because it would be included 4 times automatically
-		int c = 0;
-		for (int i = 0; i < 4; i++){
-		
-			if (strcmp(temp_subject, abi_subjects[i]) == 0) c++, ok_science = 1;
-		}	
-
-		// in case it is not
-		if (c == 0){
-
-			// go through every subject
-			for (int i = 0; i < num_sub; i++){
-
-				// until temp_subject is found
-				if (strcmp(temp_subject, subjects[i].abbr) == 0){
-
-					// go through every quater
-					for (int j = 0; j < 4; j++){
-
-						// count the included with quater_c
-						if (subjects[i].included[j] == 1){
-
-							quater_c++;
-						}
-					}
-				}
-			}
-			// break if quater_c is 4 because it is a minimum of 1 subject that needs to be 4 times included
-			if (quater_c == 4) ok_science = 1; break;
-		}	
-	}
-
-	if (ok_science == 0){
-
-		printf("One of these subjects ");
-
-		for (int i = 0; i < l_s_sub; i++){
-
-			printf("%s ", science_subjects[i]);
-
-		}
-
-		printf("needs to be included 4 times.\n");
-
-	}
-
-	return 0;
 }
 
 
@@ -819,17 +646,17 @@ int main(){
 	combine_abbr(subjects);
 
 	// print document
-	print_buffer(buffer);
+	// print_buffer(buffer);
 
 	// take input and update included arrays
 	take_input(subjects);
 	update_included_arrays(subjects);
 	
 	// print info
-	print_info(subjects);
+	// print_info(subjects);
 
 	// return if everything is right or something needs to be included
-	return_rightness(subjects);
+	return_r(subjects);
 	
 	// free buffer
 	free(buffer);

@@ -287,11 +287,13 @@ int main(){
 	// print document
 	print_buffer(buffer);
 	
-	print_info(subjects);
-	
+		
 	// take input and update included arrays
 	take_input(subjects);
 	update_included_arrays(subjects);
+	
+	// print info
+	print_info(subjects);
 	
 	// print all sums
 	printf("sum of block1: %f\n", calculate_block1(subjects));
